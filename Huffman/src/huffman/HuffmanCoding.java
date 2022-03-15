@@ -34,8 +34,25 @@ public class HuffmanCoding {
      */
     public void makeSortedList() {
         StdIn.setFile(fileName);
-
-	/* Your code goes here */
+        //initialize array
+        int[] charOccs = new int[128];
+        int charcount=0;
+        while (StdIn.hasNextChar()){
+            char index = StdIn.readChar();
+            ++charOccs[index];
+            ++charcount;
+        }
+        for (char i=(char)0;i<charOccs.length;i++){
+            if (charOccs[i]!=0){
+                CharFreq charfreq = new CharFreq(i,charOccs[i]/charcount);
+                sortedCharFreqList.add(charfreq);
+            }
+        }
+        if (sortedCharFreqList.size()==1){
+            CharFreq fix = new CharFreq((char)((sortedCharFreqList.get(0).getCharacter()+1)%128), 0.0);
+            sortedCharFreqList.add(fix);
+        }
+        Collections.sort(sortedCharFreqList);
     }
 
     /**
