@@ -3,8 +3,11 @@ package huffman;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Collections;
+
+import javax.xml.transform.Source;
 
 /**
  * This class contains methods which, when used together, perform the
@@ -33,6 +36,7 @@ public class HuffmanCoding {
      * to a new ArrayList of CharFreq objects with frequency > 0, sorted by frequency
      */
     public void makeSortedList() {
+        sortedCharFreqList = new ArrayList();
         StdIn.setFile(fileName);
         //initialize array
         int[] charOccs = new int[128];
@@ -44,7 +48,7 @@ public class HuffmanCoding {
         }
         for (char i=(char)0;i<charOccs.length;i++){
             if (charOccs[i]!=0){
-                CharFreq charfreq = new CharFreq(i,charOccs[i]/charcount);
+                CharFreq charfreq = new CharFreq(i,(double)charOccs[i]/charcount);
                 sortedCharFreqList.add(charfreq);
             }
         }
@@ -60,8 +64,46 @@ public class HuffmanCoding {
      * in huffmanRoot
      */
     public void makeTree() {
-
-	/* Your code goes here */
+        // make tree of Tree nodes that contain charfreqs as data
+        Queue<TreeNode> Source = new Queue();
+        Queue<TreeNode> Target = new Queue();
+        for (int i=0;i<sortedCharFreqList.size();i++){
+            TreeNode node = new TreeNode(sortedCharFreqList.get(i),null,null);
+            Source.enqueue(node);
+        }
+        if (!Source.isEmpty()){
+            TreeNode[] nodes = new TreeNode[2];
+            while (!Source.isEmpty()){
+                for (int i=0;i<2;i++){
+                    if (!Target.isEmpty() && Source.peek().getData().compareTo(Target.peek().getData())>0){
+                        nodes[i] = Target.dequeue(); 
+                    } else{
+                        nodes[i] = Source.dequeue();
+                        if (Source.isEmpty()){
+                            if (!Target.isEmpty()){
+                                nodes[1] = Target.dequeue();
+                            }
+                            break;
+                        }
+                    }
+                    System.out.println(nodes[i].getData().getCharacter());
+                }
+                double newFreq = nodes[0].getData().getProbOcc()+nodes[1].getData().getProbOcc();
+                CharFreq newData = new CharFreq(null,newFreq);
+                TreeNode newNode = new TreeNode(newData, nodes[0],nodes[1]);
+                Target.enqueue(newNode);
+            } while (Target.size()>1){
+                nodes[0] = Target.dequeue();
+                nodes[1] = Target.dequeue();
+                double newFreq = nodes[0].getData().getProbOcc()+nodes[1].getData().getProbOcc();
+                CharFreq newData = new CharFreq(null,newFreq);
+                TreeNode newNode = new TreeNode(newData, nodes[0],nodes[1]);
+                Target.enqueue(newNode);
+            }
+            huffmanRoot = Target.dequeue();
+        }else{
+            huffmanRoot = null;
+        }
     }
 
     /**
