@@ -63,7 +63,7 @@ public class HuffmanCoding {
      * Uses sortedCharFreqList to build a huffman coding tree, and stores its root
      * in huffmanRoot
      */
-    public void makeTree() {
+    /* public void makeTree() {
         // make tree of Tree nodes that contain charfreqs as data
         Queue<TreeNode> Source = new Queue();
         Queue<TreeNode> Target = new Queue();
@@ -104,7 +104,112 @@ public class HuffmanCoding {
         }else{
             huffmanRoot = null;
         }
+    } */
+    public static TreeNode dequeue_smallest(Queue<TreeNode> q1, Queue<TreeNode> q2){
+        TreeNode one = null;
+        TreeNode two = null;
+        if(!q1.isEmpty()){
+            one = q1.peek();
+        }
+        if(!q2.isEmpty()){
+            two = q2.peek();
+        }
+        TreeNode result;
+        if (one != null && two != null){
+            if (one.getData().getProbOcc()<=two.getData().getProbOcc())
+                result = q1.dequeue();
+            else
+                result = q2.dequeue();
+        }
+        else if (one != null)
+            result = q1.dequeue();
+        else if (two != null)
+            result = q2.dequeue();
+        else
+            result = null;
+        return result;
     }
+
+    public static TreeNode combine_tree_nodes(TreeNode left, TreeNode right){
+        double combined_freq = left.getData().getProbOcc() + right.getData().getProbOcc();
+        CharFreq combined_CharFreq_node = new CharFreq(null, combined_freq);
+        TreeNode combined_node = new TreeNode(combined_CharFreq_node, left, right);
+        return combined_node;
+    }
+
+    public void makeTree(){
+        Queue<TreeNode> src= new Queue<>(), dest = new Queue<TreeNode>();
+        for(CharFreq CharFreq: sortedCharFreqList)
+            src.enqueue(new TreeNode(CharFreq, null, null));
+
+        TreeNode left, right;
+        while (!src.isEmpty()){
+            left = dequeue_smallest(src, dest);
+            right = dequeue_smallest(src, dest);
+            if (left != null && right != null){
+                TreeNode combined_node = combine_tree_nodes(left, right);
+                dest.enqueue(combined_node);
+            }
+            else if (left != null)
+                dest.enqueue(left);
+            else
+                dest.enqueue(right);
+        }
+        while (dest.size() > 1){
+            left = dest.dequeue();
+            right = dest.dequeue();
+            TreeNode combined_node = combine_tree_nodes(left, right);
+            dest.enqueue(combined_node);
+        }
+        huffmanRoot = dest.dequeue();
+    }
+
+    /* public void makeTree(){
+        //1
+        Queue<TreeNode> source = new Queue<>();
+        Queue<TreeNode> target = new Queue<>();
+        TreeNode[] trashNodes = new TreeNode[2];
+        //2&3
+        for (int i=0;i<sortedCharFreqList.size();i++){
+            TreeNode node = new TreeNode(sortedCharFreqList.get(i),null,null);
+            source.enqueue(node);
+        }
+        //4
+        //do first
+        for(int i=0;i<2&&!source.isEmpty();i++){
+            Boolean isSource = source.peek().getData().compareTo(target.peek().getData())<=0;
+            if (target.isEmpty()){
+                isSource = true;
+            }
+            if (isSource){
+                trashNodes[i] = source.dequeue(); 
+            } else{
+                trashNodes[i] = target.dequeue();
+                }
+        }
+        double newFreq = trashNodes[0].getData().getProbOcc()+trashNodes[1].getData().getProbOcc();
+        CharFreq newData = new CharFreq(null,newFreq);
+        TreeNode newNode = new TreeNode(newData, trashNodes[0],trashNodes[1]);
+        target.enqueue(newNode);
+        //do as a loop
+        while (!source.isEmpty()&&target.size()!=1){
+            for(int i=0;i<2&&!source.isEmpty();i++){
+                Boolean isSource = source.peek().getData().compareTo(target.peek().getData())<=0;
+                if (target.isEmpty()){
+                    isSource = true;
+                }
+                if (isSource){
+                    trashNodes[i] = source.dequeue(); 
+                } else{
+                    trashNodes[i] = target.dequeue();
+                    }
+            }
+            newFreq = trashNodes[0].getData().getProbOcc()+trashNodes[1].getData().getProbOcc();
+            newData = new CharFreq(null,newFreq);
+            newNode = new TreeNode(newData, trashNodes[0],trashNodes[1]);
+            target.enqueue(newNode);
+        }
+    } */
 
     /**
      * Uses huffmanRoot to create a string array of size 128, where each
@@ -112,9 +217,57 @@ public class HuffmanCoding {
      * present in the huffman coding tree should have their spots in the array left null.
      * Set encodings to this array.
      */
+    /* private String mapBits(Character targChar){
+        String solution = "";
+        TreeNode target = 
+        TreeNode cursor = huffmanRoot;
+        while (target!=cursor){
+           while (cursor.getData()!=null){
+               cursor = cursor.getRight();
+           }
+           if (cursor!=target){}
+        }
+        return null
+    } */
     public void makeEncodings() {
-
-	/* Your code goes here */
+        String[] codes = new String[128];
+        float percentDone = 0;
+        TreeNode cursor = huffmanRoot;
+        Queue<String> bits = new Queue<>();
+        while (percentDone!=1){
+            TreeNode left = cursor.getLeft();
+            TreeNode right = cursor.getRight();
+            if(left.getData().getCharacter()!=null){
+                char targ = left.getData().getCharacter();
+                if (bits.isEmpty()){
+                    codes[targ]="0";
+                    percentDone+=left.getData().getProbOcc();
+                } else{
+                    String assignement = "";
+                    while (!bits.isEmpty()){
+                        assignement=assignement+bits.dequeue();
+                    }
+                    bits.enqueue(assignement);
+                    codes[targ]=assignement;
+                    percentDone+=left.getData().getProbOcc();
+                }
+            }
+            if (right.getData().getCharacter()!=null){
+                char targ = right.getData().getCharacter();
+                if (bits.isEmpty()){
+                    codes[targ]="0";
+                    percentDone+=right.getData().getProbOcc();
+                } else{
+                    String assignement = "";
+                    while (!bits.isEmpty()){
+                        assignement=assignement+bits.dequeue();
+                    }
+                    bits.enqueue(assignement);
+                    codes[targ]=assignement;
+                    percentDone+=right.getData().getProbOcc();
+                }
+            }
+        }
     }
 
     /**
