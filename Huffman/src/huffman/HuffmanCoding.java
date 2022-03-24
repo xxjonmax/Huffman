@@ -139,7 +139,9 @@ public class HuffmanCoding {
     }
 
     public void makeTree(){
+        //make source queue and target queue
         Queue<TreeNode> src= new Queue<>(), dest = new Queue<TreeNode>();
+        //makes a new treenode for every charfreq
         for(CharFreq CharFreq: sortedCharFreqList)
             src.enqueue(new TreeNode(CharFreq, null, null));
 
