@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Stack;
 
 import javax.xml.transform.Source;
 
@@ -229,13 +230,33 @@ public class HuffmanCoding {
         }
         return null
     } */
+    private void preOrder(TreeNode node, String[] codes, ArrayList<String> bits){
+        if(node.getData().getCharacter()!=null){
+            codes[node.getData().getCharacter()]=String.join("", bits);
+            bits.remove(bits.size()-1);
+            return;
+        }
+        if (node.getLeft()!=null){
+            bits.add("0");
+        }
+        preOrder(node.getLeft(), codes, bits);
+        if (node.getRight()!=null){
+            bits.add("1");
+        }
+        preOrder(node.getRight(), codes, bits);
+        if (!bits.isEmpty()){
+            bits.remove(bits.size()-1);
+        }
+    }
+    
     public void makeEncodings() {
         String[] codes = new String[128];
-        float percentDone = 0;
-        TreeNode cursor = huffmanRoot;
-        Queue<String> bits = new Queue<>();
-        while (percentDone!=1){
-            TreeNode left = cursor.getLeft();
+        ArrayList<String> bits = new ArrayList<>();
+        preOrder(huffmanRoot, codes, bits);
+        encodings = codes;
+    }
+    /*
+    TreeNode left = cursor.getLeft();
             TreeNode right = cursor.getRight();
             if(left.getData().getCharacter()!=null){
                 char targ = left.getData().getCharacter();
@@ -267,8 +288,7 @@ public class HuffmanCoding {
                     percentDone+=right.getData().getProbOcc();
                 }
             }
-        }
-    }
+            */
 
     /**
      * Using encodings and filename, this method makes use of the writeBitString method
